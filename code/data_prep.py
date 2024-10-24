@@ -3,68 +3,52 @@ import pandas as pd
 from bs4 import BeautifulSoup as bs
 from urllib.parse import urljoin 
 import requests
-link = "https://3083218.youcanlearnit.net/geographytables.html"
+import re
+import numpy as np
 
-data = pd.read_html(link)
-print(data)
-print(type(data))
-print(type(type(data)))
-print(data[2].sort_values(by= 'Total Area in Sq Mi', ascending=False).iloc[0])
+dollar_values = {'dollar_values': ['$10.00', '$1,00', '$10', '$10.01', '$1,000.01']} 
+# VERSION 1
+# 
+# numbers = []
+# for i in dollar_values.values():
+#   for j in i:
+#     print(j)
+#     number = re.search(r'[0-9.,]+',j).group(0)
+#     if len(re.findall(r'[.]', number)) != 0:
+#       print(re.search(r'.', number).group(0))
+#       number = number.replace(',', '')
+#       numbers.append(float(number))
+#     else:
+#       print(re.search(r'[.]', number))
+#       number = re.sub(r'(,\d+$)','', number)
+#       print(number)
+#       numbers.append(float(number))
 
-area = data.pop()
-print(type(area))
-print(list(area.sort_values(by= 'Total Area in Sq Mi', ascending=False).values).pop())
+# print(numbers) 
 
-# exercise 2
-base_link = 'https://hplussport.net/#people'
-# data = pd.read_html('https://hplussport.net/#people',attrs={'name':'card-name'})
-# print('data')
-session = requests.Session()
-
-html = session.get(base_link).content
-soup = bs(html, "html.parser")
-print(soup)
-names = []
-titles = []
-for el in soup.find_all('h3'):
-  names.append(el.string)
-for el in soup.find_all('h4'):
-  titles.append(el.string)
-names_titles = pd.DataFrame(data = {'names':names,  'titles':titles})
-print(names_titles)
-# alternative way with select
-print(soup.select(".card-name")[0].text )
-
-# exercise 3
-link = "https://3083218.youcanlearnit.net/rainieststate.html"
-html = requests.get(link).content
-soup = bs(html,features="html.parser")
-
-len_tr = len(soup.find_all('td'))
-data = soup.find_all('td')
-vals = []
-cols = []
-print(data)
-for i in range(len_tr):
-  if i%2 == 0:
-    cols.append(data[i].string)
+def check_decimal(x):
+  if len(re.findall(r'[.]', x)) != 0:
+    x = x.replace(',','')
+    return x
   else:
-    vals.append(data[i].string)
-df = pd.DataFrame(data = {'attribute': cols, 'values': vals})
-print(df.T)
+    x = re.sub(r',(\d{2})','', x)
+    return x
 
-# exercise 4
-linkx = 'https://3083218.youcanlearnit.net/dataTable.html'
-linkx = 'https://3083218.youcanlearnit.net/rank.json?_=1728829263114'
-linkx = 'https://3083218.youcanlearnit.net/rank.json?_=1662342121475'
-page = requests.get(url=linkx)
-print(page)
+dollar_data = pd.DataFrame(dollar_values)
+dollar_data['dollar_values'] = dollar_data['dollar_values'].apply(lambda x : re.sub('\$', '', x))
+dollar_data['dollar_values'] = dollar_data['dollar_values'].apply(lambda x : check_decimal(x))
+dollar_data['dollar_values'] = dollar_data['dollar_values'].astype(float)
 
-# exercise 5
-df=[]
-base_link = 'https://pixelford.com/api/image/id/'
-for i in range(20):
-  link = base_link + str(i)
-  _json = requests.get(link)
-  data = pd.read_json(_json.content)
-  df.append(data) 
+
+# exercise 2 
+painful_strings = {'painful_strings':
+                   ['usePython', 'pandasForLife', 'Python is helpful']}
+strings = pd.DataFrame(data = painful_strings)
+
+def split_string(x):
+  xx = re.split(r'(?=[A-Z])', x)
+  new = ' '.join(xx)
+  return new
+
+
+strings['new_strings'] = strings['painful_strings'].apply(lambda x: split_string(x))
