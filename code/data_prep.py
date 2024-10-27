@@ -52,3 +52,7 @@ def split_string(x):
 
 
 strings['new_strings'] = strings['painful_strings'].apply(lambda x: split_string(x))
+
+# exercise 3
+employees = pd.read_csv('/workspaces/level-up-python-data-acquisitions-prep-EDA-3083218/data/level_up_data.csv' )
+employees[employees.describe().columns[[0,1,4]]]

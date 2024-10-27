@@ -1,6 +1,6 @@
 import pandas as pd
 
-employees = pd.read_csv('level_up_data.csv')
+employees = pd.read_csv('/workspaces/level-up-python-data-acquisitions-prep-EDA-3083218/data/level_up_data.csv' )
 
 data_types = employees.dtypes
 
